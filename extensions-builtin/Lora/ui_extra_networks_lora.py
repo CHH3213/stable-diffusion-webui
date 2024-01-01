@@ -17,6 +17,8 @@ class ExtraNetworksPageLora(ui_extra_networks.ExtraNetworksPage):
 
     def create_item(self, name, index=None, enable_filter=True):
         lora_on_disk = networks.available_networks.get(name)
+        if lora_on_disk is None:
+            return
 
         path, ext = os.path.splitext(lora_on_disk.filename)
 
@@ -25,9 +27,10 @@ class ExtraNetworksPageLora(ui_extra_networks.ExtraNetworksPage):
         item = {
             "name": name,
             "filename": lora_on_disk.filename,
+            "shorthash": lora_on_disk.shorthash,
             "preview": self.find_preview(path),
             "description": self.find_description(path),
-            "search_term": self.search_terms_from_path(lora_on_disk.filename),
+            "search_term": self.search_terms_from_path(lora_on_disk.filename) + " " + (lora_on_disk.hash or ""),
             "local_preview": f"{path}.{shared.opts.samples_format}",
             "metadata": lora_on_disk.metadata,
             "sort_keys": {'default': index, **self.get_sort_keys(lora_on_disk.filename)},
@@ -65,9 +68,10 @@ class ExtraNetworksPageLora(ui_extra_networks.ExtraNetworksPage):
         return item
 
     def list_items(self):
-        for index, name in enumerate(networks.available_networks):
+        # instantiate a list to protect against concurrent modification
+        names = list(networks.available_networks)
+        for index, name in enumerate(names):
             item = self.create_item(name, index)
-
             if item is not None:
                 yield item
 

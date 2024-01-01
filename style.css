@@ -2,12 +2,21 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap');
 
+
+/* temporary fix to hide gradio crop tool until it's fixed https://github.com/gradio-app/gradio/issues/3810 */
+
+div.gradio-image button[aria-label="Edit"] {
+    display: none;
+}
+
+
 /* general gradio fixes */
 
 :root, .dark{
     --checkbox-label-gap: 0.25em 0.1em;
     --section-header-text-size: 12pt;
     --block-background-fill: transparent;
+
 }
 
 .block.padded:not(.gradio-accordion) {
@@ -42,12 +51,15 @@ div.form{
 .block.gradio-radio,
 .block.gradio-checkboxgroup,
 .block.gradio-number,
-.block.gradio-colorpicker
-{
+.block.gradio-colorpicker {
     border-width: 0 !important;
     box-shadow: none !important;
 }
 
+div.gradio-group, div.styler{
+    border-width: 0 !important;
+    background: none;
+}
 .gap.compact{
     padding: 0;
     gap: 0.2em 0;
@@ -71,8 +83,10 @@ div.compact{
     white-space: nowrap;
 }
 
-.gradio-dropdown ul.options li.item {
-    padding: 0.05em 0;
+@media (pointer:fine) {
+    .gradio-dropdown ul.options li.item {
+        padding: 0.05em 0;
+    }
 }
 
 .gradio-dropdown ul.options li.item.selected {
@@ -133,6 +147,16 @@ a{
     cursor: pointer;
 }
 
+/* gradio 3.39 puts a lot of overflow: hidden all over the place for an unknown reason. */
+div.gradio-container, .block.gradio-textbox, div.gradio-group, div.gradio-dropdown{
+    overflow: visible !important;
+}
+
+/* align-items isn't enough and elements may overflow in Safari. */
+.unequal-height {
+    align-content: flex-start;
+}
+
 
 /* general styled components */
 
@@ -157,16 +181,6 @@ a{
     color: var(--button-secondary-text-color-hover);
 }
 
-.checkboxes-row{
-    margin-bottom: 0.5em;
-    margin-left: 0em;
-}
-.checkboxes-row > div{
-    flex: 0;
-    white-space: nowrap;
-    min-width: auto;
-}
-
 button.custom-button{
     border-radius: var(--button-large-radius);
     padding: var(--button-large-padding);
@@ -181,6 +195,18 @@ button.custom-button{
     transition: var(--button-transition);
     box-shadow: var(--button-shadow);
     text-align: center;
+}
+
+div.block.gradio-accordion {
+    border: 1px solid var(--block-border-color) !important;
+    border-radius: 8px !important;
+    margin: 2px 0;
+    padding: 8px 8px;
+}
+
+input[type="checkbox"].input-accordion-checkbox{
+    vertical-align: sub;
+    margin-right: 0.5em;
 }
 
 
@@ -223,8 +249,12 @@ button.custom-button{
 }
 
 [id$=_subseed_show] label{
-    margin-bottom: 0.5em;
+    margin-bottom: 0.65em;
     align-self: end;
+}
+
+[id$=_seed_extras] > div{
+    gap: 0.5em;
 }
 
 .html-log .comments{
@@ -266,14 +296,21 @@ button.custom-button{
     min-height: 4.5em;
 }
 
+#txt2img_generate, #img2img_generate {
+    min-height: 4.5em;
+}
+.generate-box-compact #txt2img_generate, .generate-box-compact #img2img_generate {
+    min-height: 3em;
+}
+
 @media screen and (min-width: 2500px) {
     #txt2img_gallery, #img2img_gallery {
         min-height: 768px;
     }
 }
 
-#txt2img_gallery img, #img2img_gallery img, #extras_gallery img{
-    object-fit: scale-down;
+.gradio-gallery .thumbnails img {
+    object-fit: scale-down !important;
 }
 #txt2img_actions_column, #img2img_actions_column {
     gap: 0.5em;
@@ -313,12 +350,6 @@ button.custom-button{
     border-radius: 0 0.5rem 0.5rem 0;
 }
 
-#txtimg_hr_finalres{
-    min-height: 0 !important;
-    padding: .625rem .75rem;
-    margin-left: -0.75em
-}
-
 #img2img_scale_resolution_preview.block{
     display: flex;
     align-items: end;
@@ -342,7 +373,7 @@ button.custom-button{
 }
 
 div.dimensions-tools{
-    min-width: 0 !important;
+    min-width: 1.6em !important;
     max-width: fit-content;
     flex-direction: column;
     place-content: center;
@@ -359,8 +390,8 @@ div#extras_scale_to_tab div.form{
     z-index: 5;
 }
 
-.image-buttons button{
-    min-width: auto;
+.image-buttons > .form{
+    justify-content: center;
 }
 
 .infotext {
@@ -379,19 +410,31 @@ div#extras_scale_to_tab div.form{
     min-width: 0.5em;
 }
 
+div.toprow-compact-stylerow{
+    margin: 0.5em 0;
+}
+
+div.toprow-compact-tools{
+    min-width: fit-content !important;
+    max-width: fit-content;
+}
+
 /* settings */
 #quicksettings {
-    width: fit-content;
     align-items: end;
 }
 
 #quicksettings > div, #quicksettings > fieldset{
-    max-width: 24em;
-    min-width: 24em;
+    max-width: 36em;
+    width: fit-content;
+    flex: 0 1 fit-content;
     padding: 0;
     border: none;
     box-shadow: none;
     background: none;
+}
+#quicksettings > div.gradio-dropdown{
+    min-width: 24em !important;
 }
 
 #settings{
@@ -401,6 +444,7 @@ div#extras_scale_to_tab div.form{
 #settings > div{
     border: none;
     margin-left: 10em;
+    padding: 0 var(--spacing-xl);
 }
 
 #settings > div.tab-nav{
@@ -415,6 +459,16 @@ div#extras_scale_to_tab div.form{
     border: none;
     text-align: left;
     white-space: initial;
+    padding: 4px;
+}
+
+#settings > div.tab-nav .settings-category{
+    display: block;
+    margin: 1em 0 0.25em 0;
+    font-weight: bold;
+    text-decoration: underline;
+    cursor: default;
+    user-select: none;
 }
 
 #settings_result{
@@ -482,14 +536,31 @@ table.popup-table .link{
     font-size: 18pt;
 }
 
+#settings .settings-info{
+    max-width: 48em;
+    border: 1px dotted #777;
+    margin: 0;
+    padding: 1em;
+}
+
 
 /* live preview */
 .progressDiv{
-    position: relative;
+    position: absolute;
     height: 20px;
     background: #b4c0cc;
     border-radius: 3px !important;
-    margin-bottom: -3px;
+    top: -14px;
+    left: 0px;
+    width: 100%;
+}
+
+.progress-container{
+    position: relative;
+}
+
+[id$=_results].mobile{
+    margin-top: 28px;
 }
 
 .dark .progressDiv{
@@ -514,19 +585,16 @@ table.popup-table .link{
 .livePreview{
     position: absolute;
     z-index: 300;
-    background-color: white;
-    margin: -4px;
-}
-
-.dark .livePreview{
-    background-color: rgb(17 24 39 / var(--tw-bg-opacity));
+    background: var(--background-fill-primary);
+    width: 100%;
+    height: 100%;
 }
 
 .livePreview img{
     position: absolute;
     object-fit: contain;
     width: 100%;
-    height: 100%;
+    height: calc(100% - 60px);  /* to match gradio's height */
 }
 
 /* fullscreen popup (ie in Lora's (i) button) */
@@ -548,7 +616,6 @@ table.popup-table .link{
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(20, 20, 20, 0.95);
 }
 
 .global-popup *{
@@ -557,9 +624,6 @@ table.popup-table .link{
 
 .global-popup-close:before {
     content: "×";
-}
-
-.global-popup-close{
     position: fixed;
     right: 0.25em;
     top: 0;
@@ -568,10 +632,22 @@ table.popup-table .link{
     font-size: 32pt;
 }
 
+.global-popup-close{
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(20, 20, 20, 0.95);
+}
+
 .global-popup-inner{
     display: inline-block;
     margin: auto;
     padding: 2em;
+    z-index: 1001;
+    max-height: 90%;
+    max-width: 90%;
 }
 
 /* fullpage image viewer */
@@ -593,15 +669,24 @@ table.popup-table .link{
 
 .modalControls {
     display: flex;
+    position: absolute;
+    right: 0px;
+    left: 0px;
     gap: 1em;
     padding: 1em;
-    background-color: rgba(0,0,0,0.2);
+    background-color:rgba(0,0,0,0);
+    z-index: 1;
+    transition: 0.2s ease background-color;
+}
+.modalControls:hover {
+    background-color:rgba(0,0,0,0.9);
 }
 .modalClose {
     margin-left: auto;
 }
 .modalControls span{
     color: white;
+    text-shadow: 0px 0px 0.25em black;
     font-size: 35px;
     font-weight: bold;
     cursor: pointer;
@@ -766,10 +851,27 @@ footer {
 
 /* extra networks UI */
 
+.extra-page > div.gap{
+    gap: 0;
+}
+
+.extra-page-prompts{
+    margin-bottom: 0;
+}
+
+.extra-page-prompts.extra-page-prompts-active{
+    margin-bottom: 1em;
+}
+
 .extra-network-cards{
-    height: 725px;
-    overflow: scroll;
+    height: calc(100vh - 24rem);
+    overflow: clip scroll;
     resize: vertical;
+    min-height: 52rem;
+}
+
+.extra-networks > div.tab-nav{
+    min-height: 3.4rem;
 }
 
 .extra-networks > div > [id *= '_extra_']{
@@ -784,10 +886,12 @@ footer {
     margin: 0 0.15em;
 }
 .extra-networks .tab-nav .search,
-.extra-networks .tab-nav .sort{
-    display: inline-block;
+.extra-networks .tab-nav .sort,
+.extra-networks .tab-nav .show-dirs
+{
     margin: 0.3em;
     align-self: center;
+    width: auto;
 }
 
 .extra-networks .tab-nav .search {
@@ -823,6 +927,7 @@ footer {
     position: absolute;
     color: white;
     right: 0;
+    z-index: 1
 }
 .extra-network-cards .card:hover .button-row{
     display: flex;
@@ -960,6 +1065,8 @@ div.block.gradio-box.edit-user-metadata {
 
 .edit-user-metadata .file-metadata th, .edit-user-metadata .file-metadata td{
     padding: 0.3em 1em;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .edit-user-metadata .wrap.translucent{
@@ -971,4 +1078,82 @@ div.block.gradio-box.edit-user-metadata {
 
 .edit-user-metadata-buttons{
     margin-top: 1.5em;
+}
+
+
+
+
+div.block.gradio-box.popup-dialog, .popup-dialog {
+    width: 56em;
+    background: var(--body-background-fill);
+    padding: 2em !important;
+}
+
+div.block.gradio-box.popup-dialog > div:last-child, .popup-dialog > div:last-child{
+    margin-top: 1em;
+}
+
+div.block.input-accordion{
+
+}
+
+.input-accordion-extra{
+    flex: 0 0 auto !important;
+    margin: 0 0.5em 0 auto;
+}
+
+div.accordions > div.input-accordion{
+    min-width: fit-content !important;
+}
+
+div.accordions > div.gradio-accordion .label-wrap span{
+    white-space: nowrap;
+    margin-right: 0.25em;
+}
+
+div.accordions{
+    gap: 0.5em;
+}
+
+div.accordions > div.input-accordion.input-accordion-open{
+    flex: 1 auto;
+    flex-flow: column;
+}
+
+
+/* sticky right hand columns */
+
+#img2img_results, #txt2img_results, #extras_results {
+    position: sticky;
+    top: 0.5em;
+}
+
+body.resizing {
+    cursor: col-resize !important;
+}
+
+body.resizing * {
+    pointer-events: none !important;
+}
+
+body.resizing .resize-handle {
+    pointer-events: initial !important;
+}
+
+.resize-handle {
+    position: relative;
+    cursor: col-resize;
+    grid-column: 2 / 3;
+    min-width: 16px !important;
+    max-width: 16px !important;
+    height: 100%;
+}
+
+.resize-handle::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 7.5px;
+    border-left: 1px dashed var(--border-color-primary);
 }

@@ -93,6 +93,7 @@ class Network:  # LoraModule
         self.unet_multiplier = 1.0
         self.dyn_dim = None
         self.modules = {}
+        self.bundle_embeddings = {}
         self.mtime = None
 
         self.mentioned_name = None
@@ -133,7 +134,7 @@ class NetworkModule:
 
         return 1.0
 
-    def finalize_updown(self, updown, orig_weight, output_shape):
+    def finalize_updown(self, updown, orig_weight, output_shape, ex_bias=None):
         if self.bias is not None:
             updown = updown.reshape(self.bias.shape)
             updown += self.bias.to(orig_weight.device, dtype=orig_weight.dtype)
@@ -145,7 +146,10 @@ class NetworkModule:
         if orig_weight.size().numel() == updown.size().numel():
             updown = updown.reshape(orig_weight.shape)
 
-        return updown * self.calc_scale() * self.multiplier()
+        if ex_bias is not None:
+            ex_bias = ex_bias * self.multiplier()
+
+        return updown * self.calc_scale() * self.multiplier(), ex_bias
 
     def calc_updown(self, target):
         raise NotImplementedError()
